@@ -6,7 +6,8 @@ import {
 } from "./constants";
 
 export class Model {
-  constructor() {
+  constructor(viewCallback) {
+    this.viewCallback = viewCallback;
     this.width = GAME_SIZE;
     this.height = GAME_SIZE;
     this.raf = null;
@@ -26,16 +27,31 @@ export class Model {
     this.raf = requestAnimationFrame(() => {
       const currentTime = new Date().getTime();
       if (currentTime - date > RENDER_INTERVAL) {
-
-        for (let i = 0; i < this.width; i++) {
-          for (let j = 0; j < this.width; j++) {
-            const nbAlive = this.aliveNeighbours(i, j);
-            // TODO implement Game of life logic
+        //permet de ne pas modifier l'état actuel, sinon on ne peut pas récupérer les cellules voisines en vie
+        var tmpState = this.state.map(function(subArray) {
+          return subArray.slice();
+        });
+        let changed = false;
+        for (let x = 0; x < this.width; x++) {
+          for (let y = 0; y < this.width; y++) {
+            const nbAlive = this.aliveNeighbours(x, y);
+            const previousWasAlive = this.isCellAlive(x, y);
+            if (!previousWasAlive && nbAlive === 3) {
+              tmpState[y][x] = CELL_STATES.ALIVE;
+              changed = true;
+            } else if (previousWasAlive && (nbAlive < 2 || nbAlive > 3)) {
+              tmpState[y][x] = CELL_STATES.DEAD;
+              changed = true;
+            }
           }
         }
-
-        this.updated();
-        this.run(currentTime);
+        if (changed) {
+          this.state = tmpState;
+          this.updated();
+          this.run(currentTime);
+        } else {
+          this.stop();
+        }
       } else {
         this.run(date);
       }
@@ -48,7 +64,8 @@ export class Model {
   }
 
   reset() {
-    // TODO
+    this.stop();
+    this.init();
   }
 
   isCellAlive(x, y) {
@@ -60,13 +77,24 @@ export class Model {
       ? 1
       : 0;
   }
+
   aliveNeighbours(x, y) {
     let number = 0;
-    // TODO
+    for (let i = -1; i < 2; i++) {
+      for (let j = -1; j < 2; j++) {
+        if (this.isCellAlive(x + i, y + j)) {
+          number++;
+        }
+      }
+    }
+    //Evite de faire un if i et j à 0 à chaque itération
+    if (this.isCellAlive(x, y)) {
+      number--;
+    }
     return number;
   }
 
   updated() {
-    // TODO update the view
+    this.viewCallback(this);
   }
 }

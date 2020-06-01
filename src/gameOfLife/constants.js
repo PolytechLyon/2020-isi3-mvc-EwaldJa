@@ -1,4 +1,4 @@
-export const GAME_SIZE = 10;
+export const GAME_SIZE = 30;
 export const CELL_SIZE = 20;
 export const RENDER_INTERVAL = 500;
 
@@ -9,13 +9,13 @@ export const CELL_STATES = {
 };
 
 export const DEFAULT_ALIVE_PAIRS = [
-  [3, 4],
-  [5, 6],
-  [7, 1],
-  [7, 2],
-  [8, 5],
-  [4, 4],
-  [5, 4],
-  [6, 4],
-  [8, 4]
+  [13, 14],
+  [15, 16],
+  [17, 11],
+  [17, 12],
+  [18, 15],
+  [14, 14],
+  [15, 14],
+  [16, 14],
+  [18, 14]
 ];
